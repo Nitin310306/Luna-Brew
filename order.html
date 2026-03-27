@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order - Luna Brew Coffee</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f3ef; color: #333; }
+    .container { max-width: 760px; margin: 40px auto; padding: 20px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 10px; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    label { display: block; margin-top: 15px; font-weight: 600; }
+    input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; }
+    .btn { margin-top: 20px; padding: 12px 20px; border: none; background: #6f4e37; color: white; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; }
+    .btn:hover { background: #5a3f2f; }
+    .link-row { margin-top: 20px; text-align: center; }
+    .link-row a { color: #6f4e37; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Place Your Order</h1>
+
+    <section id="cart-section">
+      <h2>Your Cart</h2>
+      <div id="cart-list"></div>
+      <p id="empty-cart" style="font-style: italic;">Loading cart...</p>
+      <p id="cart-total" style="font-weight: 700; margin-top: 15px;"></p>
+      <button type="button" class="btn" id="clear-cart" style="background: #a03232;">Clear Cart</button>
+    </section>
+
+    <form id="order-form">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="comments">Additional notes</label>
+      <textarea id="comments" name="comments" rows="4" placeholder="Extra sugar, milk options, etc."></textarea>
+
+      <button type="submit" class="btn">Confirm Order</button>
+    </form>
+    <div class="link-row">
+      <a href="home.html">← Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+  const CART_KEY = 'lunaCart';
+
+  function getCart() {
+    let cart = [];
+    try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { cart = []; }
+    return cart;
+  }
+
+  function setCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    renderCart();
+  }
+
+  function renderCart() {
+    const cart = getCart();
+    const cartList = document.getElementById('cart-list');
+    const emptyCart = document.getElementById('empty-cart');
+    const totalElem = document.getElementById('cart-total');
+
+    if (!cart.length) {
+      cartList.innerHTML = '';
+      emptyCart.textContent = 'Your cart is empty. Add items from Home.';
+      totalElem.textContent = '';
+      document.getElementById('clear-cart').disabled = true;
+      return;
+    }
+
+    document.getElementById('clear-cart').disabled = false;
+    emptyCart.textContent = '';
+    let total = 0;
+
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+
+    table.innerHTML = `
+      <tr>
+        <th style="text-align:left;padding:8px;">Item</th>
+        <th style="text-align:right;padding:8px;">Price</th>
+        <th style="text-align:right;padding:8px;">Qty</th>
+        <th style="text-align:right;padding:8px;">Subtotal</th>
+        <th style="text-align:center;padding:8px;">Action</th>
+      </tr>
+    `;
+
+    cart.forEach((item, index) => {
+      const sub = item.price * item.qty;
+      total += sub;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="padding:8px;">${item.name}</td>
+        <td style="padding:8px;text-align:right;">₹${item.price}</td>
+        <td style="padding:8px;text-align:right;"><input type="number" min="1" value="${item.qty}" data-index="${index}" class="qty-input" style="width:66px;padding:4px;border-radius:4px;"></td>
+        <td style="padding:8px;text-align:right;">₹${sub}</td>
+        <td style="padding:8px;text-align:center;"><button type="button" data-index="${index}" class="btn remove-item" style="padding: 6px 10px; background:#aa2626;">Remove</button></td>
+      `;
+      table.appendChild(row);
+    });
+
+    cartList.innerHTML = '';
+    cartList.appendChild(table);
+    totalElem.textContent = `Total: ₹${total}`;
+
+    document.querySelectorAll('.remove-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.index);
+        cart.splice(idx, 1);
+        setCart(cart);
+      });
+    });
+
+    document.querySelectorAll('.qty-input').forEach(input => {
+      input.addEventListener('change', () => {
+        const idx = Number(input.dataset.index);
+        const qty = Math.max(1, Number(input.value) || 1);
+        cart[idx].qty = qty;
+        setCart(cart);
+      });
+    });
+  }
+
+  document.getElementById('clear-cart').addEventListener('click', () => {
+    if (confirm('Clear all items from cart?')) {
+      setCart([]);
+    }
+  });
+
+  document.getElementById('order-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const cart = getCart();
+    if (!cart.length) {
+      alert('Please add at least one item to your cart before confirming order.');
+      return;
+    }
+
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const comments = document.getElementById('comments').value.trim();
+
+    if (!name || !email) {
+      alert('Name and email are required.');
+      return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+    const orderSummary = `Order placed!\nName: ${name}\nEmail: ${email}\nItems: ${cart.map(i => `${i.qty}x ${i.name}`).join(', ')}\nTotal: ₹${total}\nNotes: ${comments || 'None'}`;
+
+    alert(orderSummary);
+    alert('Thank you! Your order request is saved locally for this demo.');
+    setCart([]);
+    this.reset();
+  });
+
+  renderCart();
+  </script>
+</body>
+</html>
