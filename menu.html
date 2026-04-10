@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu - Luna Brew Coffee</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f5f3ef; color: #333; }
+    header { background: #2c1e1e; color: white; padding: 20px 50px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 24px; letter-spacing: 2px; }
+    nav a { color: white; margin-left: 20px; text-decoration: none; font-size: 16px; transition: 0.3s; }
+    nav a:hover { color: #d4a373; }
+    
+    .menu-header { text-align: center; padding: 60px 20px; background: url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf') no-repeat center/cover; color: white; }
+    .menu-header h2 { font-size: 40px; margin-bottom: 10px; background: rgba(0,0,0,0.6); display: inline-block; padding: 15px 30px; border-radius: 8px; letter-spacing: 2px; }
+    .menu-header p { font-size: 20px; font-style: italic; background: rgba(0,0,0,0.6); display: inline-block; padding: 8px 20px; border-radius: 5px; margin-top: 10px; }
+    
+    .menu-container { max-width: 1100px; margin: 0 auto; padding: 50px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
+    @media (max-width: 768px) { .menu-container { grid-template-columns: 1fr; } }
+    
+    .menu-category { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .menu-category h3 { font-size: 24px; color: #6f4e37; border-bottom: 2px solid #d4a373; padding-bottom: 15px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 10px; }
+    
+    .menu-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed #eee; }
+    .menu-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .item-details { flex: 1; padding-right: 15px; }
+    .item-name { font-weight: bold; font-size: 18px; color: #2c1e1e; margin-bottom: 4px; }
+    .item-desc { font-size: 14px; color: #777; font-style: italic; }
+    .item-price { font-weight: bold; color: #2c1e1e; margin-right: 20px; font-size: 18px; min-width: 60px; text-align: right; }
+    
+    .btn-add { padding: 8px 16px; border: none; background: #6f4e37; color: white; cursor: pointer; border-radius: 6px; transition: background 0.3s, transform 0.2s; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+    .btn-add:hover { background: #5a3f2f; transform: translateY(-2px); }
+    .btn-add:active { transform: translateY(0); }
+    
+    footer { background: #2c1e1e; color: white; text-align: center; padding: 25px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>☕ Luna Brew</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="menu.html">Menu</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="order.html" id="order-link">Order (<span id="cart-count">0</span>)</a>
+  </nav>
+</header>
+
+<div class="menu-header">
+  <h2>LUNA BREW Co.</h2>
+  <br>
+  <p>Sip the Night. Taste the Moon.</p>
+</div>
+
+<div class="menu-container">
+  <!-- SIGNATURE BREWS -->
+  <div class="menu-category">
+    <h3>✨ Signature Brews</h3>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Moonlight Latte</div>
+        <div class="item-desc">Creamy latte with a hint of vanilla</div>
+      </div>
+      <div class="item-price">₹220</div>
+      <button class="btn-add" onclick="addToCart('Moonlight Latte', 220)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Silver Mocha</div>
+        <div class="item-desc">Dark chocolate & espresso fusion</div>
+      </div>
+      <div class="item-price">₹230</div>
+      <button class="btn-add" onclick="addToCart('Silver Mocha', 230)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Lunar Caramel Brew</div>
+        <div class="item-desc">Espresso with smooth caramel swirl</div>
+      </div>
+      <div class="item-price">₹250</div>
+      <button class="btn-add" onclick="addToCart('Lunar Caramel Brew', 250)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Midnight Cold Brew</div>
+        <div class="item-desc">Slow steeped bold black coffee</div>
+      </div>
+      <div class="item-price">₹220</div>
+      <button class="btn-add" onclick="addToCart('Midnight Cold Brew', 220)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Moon Mist Cappuccino</div>
+        <div class="item-desc">Frothy, light & smooth</div>
+      </div>
+      <div class="item-price">₹220</div>
+      <button class="btn-add" onclick="addToCart('Moon Mist Cappuccino', 220)">Add</button>
+    </div>
+  </div>
+
+  <!-- ICED SELECTION -->
+  <div class="menu-category">
+    <h3>🧊 Iced Selection</h3>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Iced Luna Latte</div>
+      </div>
+      <div class="item-price">₹180</div>
+      <button class="btn-add" onclick="addToCart('Iced Luna Latte', 180)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Blue Moon Iced Mocha</div>
+      </div>
+      <div class="item-price">₹220</div>
+      <button class="btn-add" onclick="addToCart('Blue Moon Iced Mocha', 220)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Vanilla Cold Foam Brew</div>
+      </div>
+      <div class="item-price">₹230</div>
+      <button class="btn-add" onclick="addToCart('Vanilla Cold Foam Brew', 230)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Hazelnut Iced Coffee</div>
+      </div>
+      <div class="item-price">₹200</div>
+      <button class="btn-add" onclick="addToCart('Hazelnut Iced Coffee', 200)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details">
+        <div class="item-name">Sea Salt Caramel Cold Brew</div>
+      </div>
+      <div class="item-price">₹240</div>
+      <button class="btn-add" onclick="addToCart('Sea Salt Caramel Cold Brew', 240)">Add</button>
+    </div>
+  </div>
+
+  <!-- CLASSIC COFFEE -->
+  <div class="menu-category">
+    <h3>☕ Classic Coffee</h3>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Espresso</div></div>
+      <div class="item-price">₹120</div>
+      <button class="btn-add" onclick="addToCart('Espresso', 120)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Americano</div></div>
+      <div class="item-price">₹150</div>
+      <button class="btn-add" onclick="addToCart('Americano', 150)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Cappuccino</div></div>
+      <div class="item-price">₹180</div>
+      <button class="btn-add" onclick="addToCart('Cappuccino', 180)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Flat White</div></div>
+      <div class="item-price">₹180</div>
+      <button class="btn-add" onclick="addToCart('Flat White', 180)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Café Latte</div></div>
+      <div class="item-price">₹180</div>
+      <button class="btn-add" onclick="addToCart('Café Latte', 180)">Add</button>
+    </div>
+  </div>
+
+  <!-- PAIRINGS -->
+  <div class="menu-category">
+    <h3>🥐 Pairings <span style="font-size: 14px; color: #888; font-style: italic; text-transform: none; letter-spacing: 0; font-weight: normal;">(Optional Add-on)</span></h3>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Butter Croissant</div></div>
+      <div class="item-price">₹100</div>
+      <button class="btn-add" onclick="addToCart('Butter Croissant', 100)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Chocolate Danish</div></div>
+      <div class="item-price">₹120</div>
+      <button class="btn-add" onclick="addToCart('Chocolate Danish', 120)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Blueberry Muffin</div></div>
+      <div class="item-price">₹150</div>
+      <button class="btn-add" onclick="addToCart('Blueberry Muffin', 150)">Add</button>
+    </div>
+    
+    <div class="menu-item">
+      <div class="item-details"><div class="item-name">Moon Macarons</div></div>
+      <div class="item-price">₹150</div>
+      <button class="btn-add" onclick="addToCart('Moon Macarons', 150)">Add</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 Luna Brew Coffee | Crafted with ❤️</p>
+</footer>
+
+<script>
+  const CART_KEY = 'lunaCart';
+
+  function getCart() {
+    let cart = [];
+    try {
+      cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    } catch (e) {
+      cart = [];
+    }
+    return cart;
+  }
+
+  function saveCart(cart) {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    renderCartCount();
+  }
+
+  function renderCartCount() {
+    const cart = getCart();
+    const total = cart.reduce((sum, item) => sum + item.qty, 0);
+    const countSpan = document.getElementById('cart-count');
+    if (countSpan) countSpan.innerText = total;
+  }
+
+  function addToCart(name, price) {
+    const cart = getCart();
+    const existing = cart.find(i => i.name === name);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ name, price, qty: 1 });
+    }
+    saveCart(cart);
+    alert(`${name} added to cart.`);
+  }
+
+  document.addEventListener('DOMContentLoaded', renderCartCount);
+</script>
+
+</body>
+</html>
