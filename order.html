@@ -39,7 +39,7 @@
       <label for="comments">Additional notes</label>
       <textarea id="comments" name="comments" rows="4" placeholder="Extra sugar, milk options, etc."></textarea>
 
-      <button type="submit" class="btn">Confirm Order</button>
+      <button type="submit" class="btn" id="submit-btn">Confirm Order</button>
     </form>
     <div class="link-row">
       <a href="index.html" style="margin-right: 20px;">← Back to Home</a>
@@ -152,14 +152,42 @@
       return;
     }
 
+    const btn = document.getElementById('submit-btn');
+    btn.textContent = 'Sending Order...';
+    btn.disabled = true;
+
     const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const orderDetails = cart.map(i => `${i.qty}x ${i.name} (₹${i.price * i.qty})`).join('\n');
+    const fullOrderText = `Items:\n${orderDetails}\n\nTotal: ₹${total}\n\nNotes/Comments: ${comments || 'None'}`;
 
-    const orderSummary = `Order placed!\nName: ${name}\nEmail: ${email}\nItems: ${cart.map(i => `${i.qty}x ${i.name}`).join(', ')}\nTotal: ₹${total}\nNotes: ${comments || 'None'}`;
-
-    alert(orderSummary);
-    alert('Thank you! Your order request is saved locally for this demo.');
-    setCart([]);
-    this.reset();
+    fetch("https://formsubmit.co/ajax/lunabrewcoffw@gmail.com", {
+        method: "POST",
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            _subject: `New Luna Brew Order from ${name}!`,
+            "Customer Name": name,
+            "Customer Email": email,
+            "Order Details": fullOrderText,
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("🎉 Success! Your order has been placed successfully and sent to our team.");
+        setCart([]);
+        this.reset();
+        btn.textContent = 'Confirm Order';
+        btn.disabled = false;
+        window.location.href = 'index.html'; // return home
+    })
+    .catch(error => {
+        console.error(error);
+        alert("Oops! There was an issue placing your order. Please try again.");
+        btn.textContent = 'Confirm Order';
+        btn.disabled = false;
+    });
   });
 
   renderCart();
