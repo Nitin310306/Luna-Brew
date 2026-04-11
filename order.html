@@ -88,7 +88,7 @@
         <th style="text-align:left;padding:8px;">Item</th>
         <th style="text-align:right;padding:8px;">Price</th>
         <th style="text-align:right;padding:8px;">Qty</th>
-        <th style="text-align:right;padding:8px;">GST</th>
+        <th style="text-align:right;padding:8px;">GST (%)</th>
         <th style="text-align:right;padding:8px;">Total</th>
         <th style="text-align:center;padding:8px;">Action</th>
       </tr>
@@ -109,7 +109,7 @@
         <td style="padding:8px;">${item.name}</td>
         <td style="padding:8px;text-align:right;">₹${item.price}</td>
         <td style="padding:8px;text-align:right;"><input type="number" min="1" value="${item.qty}" data-index="${index}" class="qty-input" style="width:66px;padding:4px;border-radius:4px;"></td>
-        <td style="padding:8px;text-align:right;">₹${itemGst.toFixed(2)}</td>
+        <td style="padding:8px;text-align:right;">₹${itemGst.toFixed(2)} (${(itemGstRate * 100).toFixed(0)}%)</td>
         <td style="padding:8px;text-align:right;">₹${itemTotal.toFixed(2)}</td>
         <td style="padding:8px;text-align:center;"><button type="button" data-index="${index}" class="btn remove-item" style="padding: 6px 10px; background:#aa2626;">Remove</button></td>
       `;
@@ -193,12 +193,13 @@
             _subject: `New Luna Brew Order from ${name}!`,
             "Customer Name": name,
             "Customer Email": email,
+            "Payment Status": "Pending (Pay at Counter)",
             "Order Details": fullOrderText,
         })
     })
     .then(response => response.json())
     .then(data => {
-        alert("🎉 Success! Your order has been placed successfully and sent to our team.");
+        alert("🎉 Success! Your order has been placed successfully. Please pay at the counter when you pick up your order.");
         setCart([]);
         this.reset();
         btn.textContent = 'Confirm Order';
