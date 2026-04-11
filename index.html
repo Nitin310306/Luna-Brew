@@ -154,7 +154,7 @@
 
 <section id="contact" class="section">
   <h2>Contact Us</h2>
-  <p>Email: lunabrewcoffee13@gmail.com</p>
+  <p>Email: lunabrewcoffw01@gmail.com</p>
   <p>Phone: +91 98708 30346</p>
   <div style="margin-top: 20px;">
     <a href="https://youtube.com/@lunabrew-g3o?si=ItHHnuCiTDqHkaWT" target="_blank" style="color: #6f4e37; text-decoration: none; font-weight: bold; margin: 0 10px;"><i class="fa-brands fa-youtube" style="margin-right: 5px;"></i>YouTube</a>
@@ -196,13 +196,13 @@
     document.getElementById('cart-count').innerText = total;
   }
 
-  function addToCart(name, price) {
+  function addToCart(name, price, gstRate = 0.05) {
     const cart = getCart();
     const existing = cart.find(i => i.name === name);
     if (existing) {
       existing.qty += 1;
     } else {
-      cart.push({ name, price, qty: 1 });
+      cart.push({ name, price, qty: 1, gstRate });
     }
     saveCart(cart);
     alert(`${name} added to cart.`);
