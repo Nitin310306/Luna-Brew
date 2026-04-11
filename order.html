@@ -173,7 +173,7 @@
     const orderDetails = cart.map(i => `${i.qty}x ${i.name} (₹${i.price * i.qty})`).join('\n');
     const fullOrderText = `Items:\n${orderDetails}\n\nSubtotal: ₹${subtotal.toFixed(2)}\nGST (5%): ₹${gstAmount.toFixed(2)}\nFinal Total (incl. GST): ₹${finalTotal.toFixed(2)}\n\nNotes/Comments: ${comments || 'None'}`;
 
-    fetch("https://formsubmit.co/ajax/lunabrewcoffw@gmail.com", {
+    fetch("https://formsubmit.co/ajax/lunabrewcoffee13@gmail.com", {
         method: "POST",
         headers: { 
             'Content-Type': 'application/json',
