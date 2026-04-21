@@ -25,6 +25,16 @@
       <h2>Your Cart</h2>
       <div id="cart-list"></div>
       <p id="empty-cart" style="font-style: italic;">Loading cart...</p>
+      
+      <div id="coupon-section" style="margin-top: 15px; display: none;">
+        <label for="coupon-code">Have a Coupon?</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="text" id="coupon-code" placeholder="Enter coupon code (e.g., LUNA10, FLAT50)" style="margin-top: 0; text-transform: uppercase;">
+          <button type="button" id="apply-coupon" class="btn" style="margin-top: 0; width: auto; background: #6f4e37;">Apply</button>
+        </div>
+        <p id="coupon-message" style="margin-top: 5px; font-size: 14px; font-weight: bold;"></p>
+      </div>
+
       <p id="cart-total" style="font-weight: 700; margin-top: 15px;"></p>
       <button type="button" class="btn" id="clear-cart" style="background: #a03232;">Clear Cart</button>
     </section>
@@ -50,6 +60,14 @@
   <script>
   const CART_KEY = 'lunaCart';
 
+  const VALID_COUPONS = {
+    'LUNA10': { type: 'percent', value: 10 },
+    'LUNA20': { type: 'percent', value: 20 },
+    'FLAT50': { type: 'flat', value: 50 },
+    'WELCOME': { type: 'percent', value: 15 }
+  };
+  let appliedCoupon = null;
+
   function getCart() {
     let cart = [];
     try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { cart = []; }
@@ -72,10 +90,12 @@
       emptyCart.textContent = 'Your cart is empty. Add items from Home.';
       totalElem.textContent = '';
       document.getElementById('clear-cart').disabled = true;
+      document.getElementById('coupon-section').style.display = 'none';
       return;
     }
 
     document.getElementById('clear-cart').disabled = false;
+    document.getElementById('coupon-section').style.display = 'block';
     emptyCart.textContent = '';
     let total = 0;
 
@@ -119,13 +139,32 @@
     cartList.innerHTML = '';
     cartList.appendChild(table);
     
-    const finalTotal = total + totalGstAmount;
+    const baseFinalTotal = total + totalGstAmount;
+    let discount = 0;
     
-    totalElem.innerHTML = `
+    if (appliedCoupon) {
+       if (appliedCoupon.type === 'percent') {
+          discount = baseFinalTotal * (appliedCoupon.value / 100);
+       } else if (appliedCoupon.type === 'flat') {
+          discount = appliedCoupon.value;
+       }
+       if (discount > baseFinalTotal) discount = baseFinalTotal;
+    }
+    
+    const finalTotal = baseFinalTotal - discount;
+    
+    let totalHtml = `
       <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: normal;"><span>Subtotal:</span> <span>₹${total.toFixed(2)}</span></div>
       <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: normal; color: #666;"><span>Total GST:</span> <span>₹${totalGstAmount.toFixed(2)}</span></div>
-      <div style="display: flex; justify-content: space-between; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 5px; font-size: 18px;"><span>Total:</span> <span>₹${finalTotal.toFixed(2)}</span></div>
     `;
+    
+    if (appliedCoupon) {
+      totalHtml += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: normal; color: #28a745;"><span>Discount (${appliedCoupon.code}):</span> <span>-₹${discount.toFixed(2)}</span></div>`;
+    }
+
+    totalHtml += `<div style="display: flex; justify-content: space-between; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 5px; font-size: 18px;"><span>Total:</span> <span>₹${finalTotal.toFixed(2)}</span></div>`;
+    
+    totalElem.innerHTML = totalHtml;
 
     document.querySelectorAll('.remove-item').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -147,8 +186,35 @@
 
   document.getElementById('clear-cart').addEventListener('click', () => {
     if (confirm('Clear all items from cart?')) {
+      appliedCoupon = null;
+      document.getElementById('coupon-code').value = '';
+      document.getElementById('coupon-message').textContent = '';
       setCart([]);
     }
+  });
+
+  document.getElementById('apply-coupon').addEventListener('click', () => {
+    const codeInput = document.getElementById('coupon-code').value.trim().toUpperCase();
+    const messageElem = document.getElementById('coupon-message');
+    
+    if (!codeInput) {
+        messageElem.textContent = 'Please enter a code.';
+        messageElem.style.color = '#aa2626';
+        appliedCoupon = null;
+        renderCart();
+        return;
+    }
+
+    if (VALID_COUPONS[codeInput]) {
+        appliedCoupon = { code: codeInput, ...VALID_COUPONS[codeInput] };
+        messageElem.textContent = `Coupon ${codeInput} applied successfully!`;
+        messageElem.style.color = '#28a745';
+    } else {
+        appliedCoupon = null;
+        messageElem.textContent = 'Invalid coupon code.';
+        messageElem.style.color = '#aa2626';
+    }
+    renderCart();
   });
 
   document.getElementById('order-form').addEventListener('submit', function (event) {
@@ -174,14 +240,26 @@
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
     const gstAmount = cart.reduce((sum, item) => sum + (item.price * item.qty * (item.gstRate || 0.05)), 0);
-    const finalTotal = subtotal + gstAmount;
+    const baseFinalTotal = subtotal + gstAmount;
+
+    let discount = 0;
+    if (appliedCoupon) {
+       if (appliedCoupon.type === 'percent') {
+          discount = baseFinalTotal * (appliedCoupon.value / 100);
+       } else if (appliedCoupon.type === 'flat') {
+          discount = appliedCoupon.value;
+       }
+       if (discount > baseFinalTotal) discount = baseFinalTotal;
+    }
+    const finalTotal = baseFinalTotal - discount;
     
     const orderDetails = cart.map(i => {
       const itemGst = i.price * i.qty * (i.gstRate || 0.05);
       const itemTotal = (i.price * i.qty) + itemGst;
       return `${i.qty}x ${i.name} (Base: ₹${i.price * i.qty}, GST: ₹${itemGst.toFixed(2)} = ₹${itemTotal.toFixed(2)})`;
     }).join('\n');
-    const fullOrderText = `Items:\n${orderDetails}\n\nSubtotal: ₹${subtotal.toFixed(2)}\nTotal GST: ₹${gstAmount.toFixed(2)}\nFinal Total: ₹${finalTotal.toFixed(2)}\n\nNotes/Comments: ${comments || 'None'}`;
+    let discountText = appliedCoupon ? `Discount (${appliedCoupon.code}): -₹${discount.toFixed(2)}\n` : '';
+    const fullOrderText = `Items:\n${orderDetails}\n\nSubtotal: ₹${subtotal.toFixed(2)}\nTotal GST: ₹${gstAmount.toFixed(2)}\n${discountText}Final Total: ₹${finalTotal.toFixed(2)}\n\nNotes/Comments: ${comments || 'None'}`;
 
     fetch("https://formsubmit.co/ajax/lunabrewcoffw01@gmail.com", {
         method: "POST",
@@ -200,6 +278,9 @@
     .then(response => response.json())
     .then(data => {
         alert("🎉 Success! Your order has been placed successfully. Please pay at the counter when you pick up your order.");
+        appliedCoupon = null;
+        document.getElementById('coupon-code').value = '';
+        document.getElementById('coupon-message').textContent = '';
         setCart([]);
         this.reset();
         btn.textContent = 'Confirm Order';
